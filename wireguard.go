@@ -19,7 +19,7 @@ import (
 
 // Starts wireguard-go
 func StartWireguard() {
-	tun, err := tun.CreateTUN(State.Flags.Wg_interface, 0)
+	tun, err := tun.CreateTUN(State.Flags.Wg_interface, 1420)
 	if err == nil {
 		realInterfaceName, err2 := tun.Name()
 		if err2 == nil {
@@ -82,6 +82,7 @@ func StartWireguard() {
 	// clean up
 	uapi.Close()
 	device.Close()
+	CleanupRoutes()
 	os.Exit(0)
 }
 
@@ -114,18 +115,11 @@ func ApplyWireguardConfig() {
 
 	// Parse allowed subnets
 	allowedIPs := []net.IPNet{}
-	for _, subnet := range PeerConfig.RemoteSubnets {
+	for _, subnet := range PeerConfig.AllowedSubnets {
 		_, ipNet, err := net.ParseCIDR(subnet)
 		if err != nil {
 			break
 		}
-		allowedIPs = append(allowedIPs, *ipNet)
-	}
-	// Append peer's own subnet
-	_, ipNet, err := net.ParseCIDR(PeerConfig.RemoteTunAddress + "/32")
-	if err != nil {
-		log.Println("Error parsing peer's own subnet:", err)
-	} else {
 		allowedIPs = append(allowedIPs, *ipNet)
 	}
 
@@ -170,5 +164,10 @@ func ApplyWireguardConfig() {
 	})
 	if err != nil {
 		log.Fatal("Failed to apply configuration")
+	}
+
+	err = ApplyNetworkConfiguration()
+	if err != nil {
+		log.Println("Failed to apply network configuration:", err)
 	}
 }

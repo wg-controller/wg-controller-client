@@ -54,6 +54,8 @@ func InitPeerServer() {
 		InitPeerServer()
 		return
 	}
+
+	log.Println("Peer found on server")
 }
 
 func GetInitPeer() types.PeerInit {

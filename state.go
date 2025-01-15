@@ -29,7 +29,15 @@ func LoadState() error {
 }
 
 func SaveState() {
-	// Create state file and directorys
+	// Create wireguard directory if not exist
+	if _, err := os.Stat(stateDirPath()); os.IsNotExist(err) {
+		err := os.MkdirAll(stateDirPath(), 0755)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	// Create state file
 	file, err := os.Create(stateFilePath())
 	if err != nil {
 		panic(err)
@@ -40,6 +48,19 @@ func SaveState() {
 	err = encoder.Encode(State)
 	if err != nil {
 		panic(err)
+	}
+}
+
+func stateDirPath() string {
+	switch runtime.GOOS {
+	case "linux":
+		return "/var/run/wireguard"
+	case "darwin":
+		return "/var/run/wireguard"
+	case "windows":
+		return `\\.\pipe\wireguard`
+	default:
+		return "/var/run/wireguard"
 	}
 }
 
