@@ -1,6 +1,11 @@
 package main
 
-import "runtime"
+import (
+	"errors"
+	"os/exec"
+	"runtime"
+	"strings"
+)
 
 func AppendNameserver(nameServer string) error {
 	switch runtime.GOOS {
@@ -8,17 +13,26 @@ func AppendNameserver(nameServer string) error {
 		return appendLinuxNameserver(nameServer)
 	case "darwin":
 		return appendDarwinNameserver(nameServer)
+	case "windows":
+		return errors.New("unsupported OS")
 	default:
-		return appendLinuxNameserver(nameServer)
+		return errors.New("unsupported OS")
 	}
 }
 
 func appendLinuxNameserver(nameServer string) error {
-	return nil
+	if ResolvconfUtilityInstalled() {
+		in := "nameserver " + nameServer
+		cmd := exec.Command("resolvconf", "-a", State.Flags.Wg_interface, "-m", "0", "-x")
+		cmd.Stdin = strings.NewReader(in)
+		return cmd.Run()
+	} else {
+		return errors.New("unsupported OS")
+	}
 }
 
 func appendDarwinNameserver(nameServer string) error {
-	return nil
+	return errors.New("unsupported OS")
 }
 
 func CleanupNameservers() error {
@@ -33,9 +47,19 @@ func CleanupNameservers() error {
 }
 
 func cleanupLinuxNameservers() error {
-	return nil
+	if ResolvconfUtilityInstalled() {
+		cmd := exec.Command("resolvconf", "-d", State.Flags.Wg_interface)
+		return cmd.Run()
+	} else {
+		return errors.New("unsupported OS")
+	}
 }
 
 func cleanupDarwinNameservers() error {
-	return nil
+	return errors.New("unsupported OS")
+}
+
+func ResolvconfUtilityInstalled() bool {
+	_, err := exec.LookPath("resolvconf")
+	return err == nil
 }

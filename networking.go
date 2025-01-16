@@ -10,6 +10,7 @@ import (
 )
 
 func ApplyNetworkConfiguration() error {
+	log.Println("Applying network configuration...")
 	// Apply IP address to WG interface
 	err := OverwriteInterfaceIP(State.Flags.Wg_interface, PeerConfig.RemoteTunAddress+ServerInfo.Netmask)
 	if err != nil {

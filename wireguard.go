@@ -87,6 +87,7 @@ func StartWireguard() {
 }
 
 func ApplyWireguardConfig() {
+	log.Println("Applying configuration...")
 	PeerConfigMU.Lock()
 	defer PeerConfigMU.Unlock()
 
@@ -164,10 +165,14 @@ func ApplyWireguardConfig() {
 	})
 	if err != nil {
 		log.Fatal("Failed to apply configuration")
+	} else {
+		log.Println("Configuration applied")
 	}
 
 	err = ApplyNetworkConfiguration()
 	if err != nil {
 		log.Println("Failed to apply network configuration:", err)
+	} else {
+		log.Println("Network configuration applied")
 	}
 }

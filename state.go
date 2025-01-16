@@ -76,3 +76,11 @@ func stateFilePath() string {
 		return "/var/run/wireguard/wg-state.json"
 	}
 }
+
+func UninstallState() {
+	// Remove state file
+	err := os.Remove(stateFilePath())
+	if err != nil {
+		panic(err)
+	}
+}
