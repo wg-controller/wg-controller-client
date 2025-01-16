@@ -63,6 +63,12 @@ func installLinuxService() error {
 		return err
 	}
 
+	// Copy binary to /usr/local/bin
+	err = exec.Command("cp", dir+"/wg-controller", "/usr/local/bin/wg-controller").Run()
+	if err != nil {
+		return err
+	}
+
 	// Create service file
 	lines := []string{
 		"[Unit]",
@@ -71,7 +77,7 @@ func installLinuxService() error {
 		"",
 		"[Service]",
 		"Type=simple",
-		"ExecStart=" + dir + "/wg-controller",
+		"ExecStart=/usr/local/bin/wg-controller",
 		"Restart=always",
 		"RestartSec=5",
 		"",
@@ -103,6 +109,9 @@ func uninstallLinuxService() error {
 
 	// Remove service file
 	os.Remove("/etc/systemd/system/wg-controller.service")
+
+	// Remove binary
+	os.Remove("/usr/local/bin/wg-controller")
 
 	// Reload systemd
 	exec.Command("systemctl", "daemon-reload").Run()
