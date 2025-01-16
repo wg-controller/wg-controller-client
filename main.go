@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"log"
+	"os"
 	"sync"
 
 	"github.com/google/uuid"
@@ -47,6 +48,8 @@ func main() {
 
 	go StartWireguard()
 
+	InstallService()
+
 	Hostname, err = GetHostname()
 	if err != nil {
 		log.Fatal(err)
@@ -57,6 +60,8 @@ func main() {
 	GetServerInfo()
 
 	GetConfig()
+
+	go InitLongPoll()
 
 	select {}
 }
@@ -72,7 +77,32 @@ func loadFlags() {
 	api_key := ""
 	flag.StringVar(&api_key, "api-key", "", "API key for the server")
 
+	install := false
+	flag.BoolVar(&install, "install", false, "Install service and state files")
+	uninstall := false
+	flag.BoolVar(&uninstall, "uninstall", false, "Cleanup service and state files")
+
 	flag.Parse()
+
+	// Install
+	if install {
+		err := InstallService()
+		if err == nil {
+			log.Println("Installed service. Run `systemctl start wg-controller` to start the service.")
+		} else {
+			log.Fatal("Failed to install wg-controller-client:", err)
+		}
+
+		os.Exit(0)
+	}
+
+	// Uninstall
+	if uninstall {
+		UninstallService()
+		UninstallState()
+		log.Println("Uninstalled wg-controller-client")
+		os.Exit(0)
+	}
 
 	if wg_interface != "" {
 		State.Flags.Wg_interface = wg_interface
@@ -86,6 +116,7 @@ func loadFlags() {
 	if api_key != "" {
 		State.Flags.Api_key = api_key
 	}
+
 }
 
 func checkRequiredFlags() {
