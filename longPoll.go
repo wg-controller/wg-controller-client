@@ -75,6 +75,9 @@ func poll() {
 		}
 
 		handleIncomingPollMsg(message)
+		time.Sleep(pollPause)
+		poll()
+		return
 	} else if resp.StatusCode == 204 {
 		// No new messages
 		time.Sleep(pollPause)
