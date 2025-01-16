@@ -41,15 +41,32 @@ func ApplyNetworkConfiguration() error {
 func OverwriteInterfaceIP(interfaceName string, ip string) error {
 	switch runtime.GOOS {
 	case "linux", "darwin":
+		// Get interface
 		link, err := netlink.LinkByName(interfaceName)
 		if err != nil {
 			return errors.New("error getting interface: " + err.Error())
 		}
+
+		// Remove existing IP addresses
+		addrs, err := netlink.AddrList(link, 2)
+		if err != nil {
+			return errors.New("error getting IP: " + err.Error())
+		}
+		for _, a := range addrs {
+			err = netlink.AddrDel(link, &a)
+			if err != nil {
+				return errors.New("error removing IP: " + err.Error())
+			}
+		}
+
+		// Parse new IP address
 		addr, err := netlink.ParseAddr(ip)
 		if err != nil {
 			return errors.New("error parsing IP: " + err.Error())
 		}
-		err = netlink.AddrReplace(link, addr)
+
+		// Add new IP address
+		err = netlink.AddrAdd(link, addr)
 		if err != nil {
 			return errors.New("error setting IP: " + err.Error())
 		}
@@ -81,13 +98,12 @@ func SetInterfaceState(interfaceName string, up bool) error {
 }
 
 func CleanupRoutes() error {
-	log.Println("Cleaning up ip routes")
 	cleanCount := 0
 	switch runtime.GOOS {
 	case "linux", "darwin":
 		routes, _ := netlink.RouteList(nil, 2)
 		for _, route := range routes {
-			if route.Protocol == 51820 {
+			if route.Protocol == 171 {
 				err := netlink.RouteDel(&route)
 				if err == nil {
 					cleanCount++
@@ -107,7 +123,11 @@ func AddRoutes(networks []string, gateway string) error {
 		for _, network := range networks {
 			err := AddRoute(network, gateway)
 			if err != nil {
-				log.Println("Failed to add route:", err)
+				if err.Error() == "file exists" {
+					log.Println("Route already exists for", network)
+				} else {
+					log.Println("Failed to add route:", err)
+				}
 			}
 		}
 	default:
@@ -130,7 +150,7 @@ func AddRoute(destination string, gateway string) error {
 		route := netlink.Route{
 			Dst:      dst,
 			Gw:       gw,
-			Protocol: 51820, // Identifies the route as a WireGuard route
+			Protocol: 171, // Identifies the route as a WireGuard route
 		}
 		return netlink.RouteAdd(&route)
 	default:
