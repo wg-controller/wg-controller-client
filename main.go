@@ -19,6 +19,7 @@ type SysFlags struct {
 	Server_host  string `json:"server_host"`
 	Server_port  string `json:"server_port"`
 	Api_key      string `json:"api_key"`
+	Routing      bool   `json:"routing"`
 }
 
 type StateStruct struct {
@@ -116,7 +117,6 @@ func loadFlags() {
 	if api_key != "" {
 		State.Flags.Api_key = api_key
 	}
-
 }
 
 func checkRequiredFlags() {

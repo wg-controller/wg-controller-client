@@ -83,6 +83,7 @@ func StartWireguard() {
 	uapi.Close()
 	device.Close()
 	CleanupRoutes()
+	CleanupSrcNat()
 	os.Exit(0)
 }
 

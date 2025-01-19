@@ -4,7 +4,10 @@ import (
 	"errors"
 	"log"
 	"net"
+	"os/exec"
 	"runtime"
+	"strconv"
+	"strings"
 
 	"github.com/vishvananda/netlink"
 )
@@ -31,6 +34,18 @@ func ApplyNetworkConfiguration() error {
 
 	// Add new routes
 	err = AddRoutes(PeerConfig.AllowedSubnets, PeerConfig.RemoteTunAddress)
+	if err != nil {
+		return err
+	}
+
+	// Cleanup source NAT
+	err = CleanupSrcNat()
+	if err != nil {
+		return err
+	}
+
+	// Apply source NAT
+	err = ApplySrcNat()
 	if err != nil {
 		return err
 	}
@@ -156,4 +171,78 @@ func AddRoute(destination string, gateway string) error {
 	default:
 		return errors.New("unsupported OS")
 	}
+}
+
+func ApplySrcNat() error {
+	switch runtime.GOOS {
+	case "linux":
+		return ApplyLinuxSrcNat()
+	default:
+		return errors.New("unsupported OS")
+	}
+}
+
+func ApplyLinuxSrcNat() error {
+	// Check if iptables is installed
+	_, err := exec.LookPath("iptables")
+	if err == nil {
+
+		count := 0
+		for _, subnet := range PeerConfig.AllowedSubnets {
+			exec.Command("iptables", "-t", "nat", "-A", "POSTROUTING", "-s", subnet, "-j", "MASQUERADE", "-m", "comment", "--comment", "wg-controller").Run()
+			count++
+		}
+		log.Println("Applied", count, "iptables rules")
+		return nil
+	}
+
+	return errors.New("iptables not found")
+}
+
+func CleanupSrcNat() error {
+	switch runtime.GOOS {
+	case "linux":
+		return CleanupLinuxSrcNat()
+	default:
+		return errors.New("unsupported OS")
+	}
+}
+
+func CleanupLinuxSrcNat() error {
+	// Check if iptables is installed
+	_, err := exec.LookPath("iptables")
+	if err == nil {
+		// Get iptables rules
+		cmd := exec.Command("iptables", "-t", "nat", "-L", "POSTROUTING", "-n", "--line-numbers")
+		out, err := cmd.Output()
+		if err != nil {
+			return errors.New("failed to get iptables rules: " + err.Error())
+		}
+		// Parse rules
+		rules := string(out)
+		lines := strings.Split(rules, "\n")
+		deleteList := []int{}
+		for _, line := range lines {
+			if strings.Contains(line, "wg-controller") {
+				fields := strings.Fields(line)
+				if len(fields) > 0 {
+					num, err := strconv.Atoi(fields[0])
+					if err == nil {
+						deleteList = append(deleteList, num)
+					}
+				}
+			}
+		}
+		// Delete rules
+		for _, num := range deleteList {
+			cmd := exec.Command("iptables", "-t", "nat", "-D", "POSTROUTING", strconv.Itoa(num))
+			err = cmd.Run()
+			if err != nil {
+				return errors.New("failed to delete iptables rule: " + err.Error())
+			}
+		}
+		log.Println("Cleaned up", len(deleteList), "iptables rules")
+		return nil
+	}
+	return errors.New("iptables not found")
 }
