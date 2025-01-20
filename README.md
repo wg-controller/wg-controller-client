@@ -30,7 +30,7 @@ Option 1: Run Standalone
 sudo ./wg-controller-linux --server-host wg.example.com --api-key kZdMQsztB-vR6Wve2dYYUOf6LXl5n2cgeESN8i7MQkU=
 ```
 
-Options 2: Install as a service
+Option 2: Install as a service
 
 ```
 sudo ./wg-controller-linux --server-host wg.example.com --api-key kZdMQsztB-vR6Wve2dYYUOf6LXl5n2cgeESN8i7MQkU= --install \
