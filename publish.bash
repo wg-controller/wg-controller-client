@@ -28,4 +28,14 @@ if [ "$EXISTING_RELEASE" == "$IMAGE_TAG" ]; then
 fi
 
 # Create release
-gh release create $IMAGE_TAG ./prebuilt/wg-controller-linux ./prebuilt/wg-controller-linuxarm64 --title "Latest Release" --notes "Release $IMAGE_TAG" --prerelease
+gh release create $IMAGE_TAG ./prebuilt/wg-controller-linux ./prebuilt/wg-controller-linuxarm64 --title $IMAGE_TAG --notes "Release $IMAGE_TAG"
+
+# Check if release "latest" already exists and delete it
+EXISTING_RELEASE=$(gh release view "latest" --json tagName -q ".tagName")
+if [ "$EXISTING_RELEASE" == "latest" ]; then
+    echo "Release with tag 'latest' exists, deleting it..."
+    gh release delete "latest" -y
+fi
+
+# Create release "latest"
+gh release create latest ./prebuilt/wg-controller-linux ./prebuilt/wg-controller-linuxarm64 --title "Latest Release" --notes "Release $IMAGE_TAG"
