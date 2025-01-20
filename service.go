@@ -44,53 +44,53 @@ func installLinuxService() error {
 	// Check if service file exists
 	_, err = os.Stat("/etc/systemd/system/wg-controller.service")
 	if err == nil {
-		return nil
+		log.Println("Service file already exists")
 	} else {
 		log.Println("Creating service file")
+
+		// Create service file
+		serviceFile, err := os.OpenFile("/etc/systemd/system/wg-controller.service",
+			os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+		if err != nil {
+			return err
+		}
+		defer serviceFile.Close()
+
+		// Create service file
+		lines := []string{
+			"[Unit]",
+			"Description=Wireguard Controller",
+			"After=network.target",
+			"",
+			"[Service]",
+			"Type=simple",
+			"ExecStart=/usr/local/bin/wg-controller",
+			"Restart=always",
+			"RestartSec=5",
+			"",
+			"[Install]",
+			"WantedBy=multi-user.target",
+		}
+
+		// Write lines to service file
+		for _, line := range lines {
+			_, err := serviceFile.WriteString(line + "\n")
+			if err != nil {
+				return err
+			}
+		}
 	}
 
-	// Create service file
-	serviceFile, err := os.OpenFile("/etc/systemd/system/wg-controller.service",
-		os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
-	if err != nil {
-		return err
-	}
-	defer serviceFile.Close()
-
-	// Get current directory
-	dir, err := os.Getwd()
+	// Get current binary path
+	binaryPath, err := os.Executable()
 	if err != nil {
 		return err
 	}
 
 	// Copy binary to /usr/local/bin
-	err = exec.Command("cp", dir+"/wg-controller", "/usr/local/bin/wg-controller").Run()
+	err = exec.Command("cp", "-rf", binaryPath, "/usr/local/bin/wg-controller").Run()
 	if err != nil {
 		return err
-	}
-
-	// Create service file
-	lines := []string{
-		"[Unit]",
-		"Description=Wireguard Controller",
-		"After=network.target",
-		"",
-		"[Service]",
-		"Type=simple",
-		"ExecStart=/usr/local/bin/wg-controller",
-		"Restart=always",
-		"RestartSec=5",
-		"",
-		"[Install]",
-		"WantedBy=multi-user.target",
-	}
-
-	// Write lines to service file
-	for _, line := range lines {
-		_, err := serviceFile.WriteString(line + "\n")
-		if err != nil {
-			return err
-		}
 	}
 
 	// Reload systemd
