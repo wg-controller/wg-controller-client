@@ -5,10 +5,10 @@ Client side service for [WireGuard Controller](https://github.com/wg-controller/
 ## Features
 
 - Unattended enrollment with WireGuard Controller
-- Automation of IP routing, and NAT rules on client
-- Synchronization of WireGuard keys and parameters with controller
+- Automation of client IP routing, and NAT rules
+- Synchronization of WireGuard keys and parameters with WireGuard controller
 - Simplicity and performance benefits of [wireguard-go](https://github.com/WireGuard/wireguard-go)
-- Minimal dependencies (all in one binary)
+- Single binary with minimal dependencies
 
 ## Installation
 
