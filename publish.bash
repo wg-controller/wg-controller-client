@@ -11,13 +11,21 @@ fi
 
 echo "Using image tag: $IMAGE_TAG"
 
+# Create prebuilt directory
+mkdir -p ./prebuilt
+
 # Build for linux/amd64
-mkdir -p ./prebuilt/linux-amd64
-env GOOS=linux GOARCH=amd64 go build -ldflags "-X 'main.IMAGE_TAG=$IMAGE_TAG'" -o ./prebuilt/linux-amd64/wg-controller . 
+env GOOS=linux GOARCH=amd64 go build -ldflags "-X 'main.IMAGE_TAG=$IMAGE_TAG'" -o ./prebuilt/wg-controller-linux . 
 
 # Build for linux/arm64
-mkdir -p ./prebuilt/linux-arm64
-env GOOS=linux GOARCH=amd64 go build -ldflags "-X 'main.IMAGE_TAG=$IMAGE_TAG'" -o ./prebuilt/linux-arm64/wg-controller . 
+env GOOS=linux GOARCH=amd64 go build -ldflags "-X 'main.IMAGE_TAG=$IMAGE_TAG'" -o ./prebuilt/wg-controller-linuxarm64 . 
+
+# Check if the release already exists and delete it
+EXISTING_RELEASE=$(gh release view "$IMAGE_TAG" --json tagName -q ".tagName")
+if [ "$EXISTING_RELEASE" == "$IMAGE_TAG" ]; then
+    echo "Release with tag '$IMAGE_TAG' exists, deleting it..."
+    gh release delete "$IMAGE_TAG" -y
+fi
 
 # Create release
-gh release create $IMAGE_TAG ./prebuilt/linux-amd64/wg-controller ./prebuilt/linux-arm64/wg-controller
+gh release create $IMAGE_TAG ./prebuilt/wg-controller-linux ./prebuilt/wg-controller-linuxarm64 --title "Latest Release" --notes "Release $IMAGE_TAG" --prerelease
