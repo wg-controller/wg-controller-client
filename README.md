@@ -15,7 +15,7 @@ Client side service for [WireGuard Controller](https://github.com/wg-controller/
 Download appropriate binary for your system
 
 ```
-wget https://github.com/wg-controller/wg-controller-client/releases/download/latest/wg-controller-linux -o wg-controller
+wget https://github.com/wg-controller/wg-controller-client/releases/download/latest/wg-controller-linux -O wg-controller
 ```
 
 Make binary executable
