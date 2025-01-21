@@ -22,6 +22,9 @@ type SysFlags struct {
 	Routing      bool   `json:"routing"`
 }
 
+var installFlag bool
+var uninstallFlag bool
+
 type StateStruct struct {
 	UUID  string   `json:"uuid"`
 	Flags SysFlags `json:"flags"`
@@ -46,6 +49,8 @@ func main() {
 	SaveState()
 
 	checkRequiredFlags()
+
+	serviceInstall()
 
 	go StartWireguard()
 
@@ -78,32 +83,10 @@ func loadFlags() {
 	api_key := ""
 	flag.StringVar(&api_key, "api-key", "", "API key for the server")
 
-	install := false
-	flag.BoolVar(&install, "install", false, "Install service and state files")
-	uninstall := false
-	flag.BoolVar(&uninstall, "uninstall", false, "Cleanup service and state files")
+	flag.BoolVar(&installFlag, "install", false, "Install service and state files")
+	flag.BoolVar(&uninstallFlag, "uninstall", false, "Cleanup service and state files")
 
 	flag.Parse()
-
-	// Install
-	if install {
-		err := InstallService()
-		if err == nil {
-			log.Println("Installed service. Run `systemctl start wg-controller` to start the service.")
-		} else {
-			log.Fatal("Failed to install wg-controller-client:", err)
-		}
-
-		os.Exit(0)
-	}
-
-	// Uninstall
-	if uninstall {
-		UninstallService()
-		UninstallState()
-		log.Println("Uninstalled wg-controller-client")
-		os.Exit(0)
-	}
 
 	if wg_interface != "" {
 		State.Flags.Wg_interface = wg_interface
@@ -131,5 +114,27 @@ func checkRequiredFlags() {
 	}
 	if State.Flags.Api_key == "" {
 		log.Fatal("--api-key is required")
+	}
+}
+
+func serviceInstall() {
+	// Install
+	if installFlag {
+		err := InstallService()
+		if err == nil {
+			log.Println("Installed service. Run `systemctl start wg-controller` to start the service.")
+		} else {
+			log.Fatal("Failed to install wg-controller-client:", err)
+		}
+
+		os.Exit(0)
+	}
+
+	// Uninstall
+	if uninstallFlag {
+		UninstallService()
+		UninstallState()
+		log.Println("Uninstalled wg-controller-client")
+		os.Exit(0)
 	}
 }
