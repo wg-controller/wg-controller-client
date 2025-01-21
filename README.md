@@ -15,25 +15,25 @@ Client side service for [WireGuard Controller](https://github.com/wg-controller/
 Download appropriate binary for your system
 
 ```
-wget https://github.com/wg-controller/wg-controller-client/releases/download/latest/wg-controller-linux
+wget https://github.com/wg-controller/wg-controller-client/releases/download/latest/wg-controller-linux -o wg-controller
 ```
 
 Make binary executable
 
 ```
-sudo chmod +x wg-controller-linux
+sudo chmod +x wg-controller
 ```
 
 Option 1: Run Standalone
 
 ```
-sudo ./wg-controller-linux --server-host wg.example.com --api-key kZdMQsztB-vR6Wve2dYYUOf6LXl5n2cgeESN8i7MQkU=
+sudo ./wg-controller --server-host wg.example.com --api-key kZdMQsztB-vR6Wve2dYYUOf6LXl5n2cgeESN8i7MQkU=
 ```
 
 Option 2: Install as a service
 
 ```
-sudo ./wg-controller-linux --server-host wg.example.com --api-key kZdMQsztB-vR6Wve2dYYUOf6LXl5n2cgeESN8i7MQkU= --install && \
+sudo ./wg-controller --server-host wg.example.com --api-key kZdMQsztB-vR6Wve2dYYUOf6LXl5n2cgeESN8i7MQkU= --install && \
 systemctl enable wg-controller && \
 systemctl start wg-controller
 ```
