@@ -34,8 +34,8 @@ Option 2: Install as a service
 
 ```
 sudo ./wg-controller --server-host wg.example.com --api-key kZdMQsztB-vR6Wve2dYYUOf6LXl5n2cgeESN8i7MQkU= --install && \
-systemctl enable wg-controller && \
-systemctl start wg-controller
+sudo systemctl enable wg-controller && \
+sudo systemctl start wg-controller
 ```
 
 ## Command Line Options
