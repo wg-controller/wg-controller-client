@@ -22,41 +22,6 @@ func PopulateHostsFile() error {
 	}
 }
 
-func PopulateLinuxHostsFile() error {
-	// Open hosts file
-	file, err := os.OpenFile("/etc/hosts", os.O_APPEND|os.O_WRONLY, 0644)
-	if err != nil {
-		return errors.New("error opening hosts file: " + err.Error())
-	}
-	defer file.Close()
-
-	// Split the file into lines
-	scanner := bufio.NewScanner(file)
-	var lines []string
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
-	}
-
-	// Append known hosts to the file
-	PeersMU.Lock()
-	for _, peer := range Peers {
-		newEntry := peer.RemoteTunAddress + " " + peer.Hostname + " # wg-controller"
-		lines = append(lines, newEntry)
-	}
-	PeersMU.Unlock()
-
-	// Write the lines back to the file
-	file.Truncate(0)
-	file.Seek(0, 0)
-	for _, line := range lines {
-		_, err = file.WriteString(line + "\n")
-		if err != nil {
-			return err
-		}
-	}
-	return err
-}
-
 func CleanupHostsFile() error {
 	switch runtime.GOOS {
 	case "linux":
@@ -70,19 +35,64 @@ func CleanupHostsFile() error {
 	}
 }
 
-func CleanupLinuxHostsFile() error {
-	// Open hosts file
-	file, err := os.OpenFile("/etc/hosts", os.O_APPEND|os.O_WRONLY, 0644)
+func PopulateLinuxHostsFile() error {
+	// Open the hosts file for reading and writing
+	file, err := os.OpenFile("/etc/hosts", os.O_RDWR, 0644)
 	if err != nil {
 		return errors.New("error opening hosts file: " + err.Error())
 	}
 	defer file.Close()
 
-	// Split the file into lines
-	scanner := bufio.NewScanner(file)
+	// Read the entire file
 	var lines []string
+	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		lines = append(lines, scanner.Text())
+	}
+	if err := scanner.Err(); err != nil {
+		return errors.New("error reading hosts file: " + err.Error())
+	}
+
+	// Append known hosts
+	PeersMU.Lock()
+	for _, peer := range Peers {
+		newEntry := peer.RemoteTunAddress + " " + peer.Hostname + " # wg-controller"
+		lines = append(lines, newEntry)
+	}
+	PeersMU.Unlock()
+
+	// Rewrite the file
+	if err := file.Truncate(0); err != nil {
+		return errors.New("error truncating hosts file: " + err.Error())
+	}
+	if _, err := file.Seek(0, 0); err != nil {
+		return errors.New("error seeking hosts file: " + err.Error())
+	}
+	writer := bufio.NewWriter(file)
+	for _, line := range lines {
+		if _, err := writer.WriteString(line + "\n"); err != nil {
+			return errors.New("error writing to hosts file: " + err.Error())
+		}
+	}
+	return writer.Flush()
+}
+
+func CleanupLinuxHostsFile() error {
+	// Open the hosts file for reading and writing
+	file, err := os.OpenFile("/etc/hosts", os.O_RDWR, 0644)
+	if err != nil {
+		return errors.New("error opening hosts file: " + err.Error())
+	}
+	defer file.Close()
+
+	// Read the entire file
+	var lines []string
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+	if err := scanner.Err(); err != nil {
+		return errors.New("error reading hosts file: " + err.Error())
 	}
 
 	// Remove wg-controller entries
@@ -96,15 +106,23 @@ func CleanupLinuxHostsFile() error {
 		}
 	}
 
-	// Write the lines back to the file
-	file.Truncate(0)
-	file.Seek(0, 0)
+	// Rewrite the file
+	if err := file.Truncate(0); err != nil {
+		return errors.New("error truncating hosts file: " + err.Error())
+	}
+	if _, err := file.Seek(0, 0); err != nil {
+		return errors.New("error seeking hosts file: " + err.Error())
+	}
+	writer := bufio.NewWriter(file)
 	for _, line := range newLines {
-		_, err = file.WriteString(line + "\n")
-		if err != nil {
-			return err
+		if _, err := writer.WriteString(line + "\n"); err != nil {
+			return errors.New("error writing to hosts file: " + err.Error())
 		}
 	}
+	if err := writer.Flush(); err != nil {
+		return errors.New("error flushing hosts file: " + err.Error())
+	}
+
 	log.Println("Cleaned up", count, "hosts file entries")
-	return err
+	return nil
 }
