@@ -54,7 +54,7 @@ func main() {
 
 	serviceInstall()
 
-	go StartWireguard()
+	go StartWireguard(1340)
 
 	InstallService()
 

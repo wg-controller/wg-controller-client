@@ -19,8 +19,8 @@ import (
 )
 
 // Starts wireguard-go
-func StartWireguard() {
-	tun, err := tun.CreateTUN(State.Flags.Wg_interface, 1420)
+func StartWireguard(mtu int) {
+	tun, err := tun.CreateTUN(State.Flags.Wg_interface, mtu)
 	if err == nil {
 		realInterfaceName, err2 := tun.Name()
 		if err2 == nil {
