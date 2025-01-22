@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/wg-controller/wg-controller-client/types"
+	"github.com/wg-controller/wg-controller/types"
 )
 
 type LP_Message struct {

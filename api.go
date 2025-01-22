@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/wg-controller/wg-controller-client/types"
+	"github.com/wg-controller/wg-controller/types"
 )
 
 // Creates a peer on the server is it doesn't exist

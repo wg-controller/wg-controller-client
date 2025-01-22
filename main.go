@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"github.com/google/uuid"
-	"github.com/wg-controller/wg-controller-client/types"
+	"github.com/wg-controller/wg-controller/types"
 )
 
 // Version
