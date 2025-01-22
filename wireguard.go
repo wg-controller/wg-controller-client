@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"strconv"
+	"syscall"
 	"time"
 
 	"golang.zx2c4.com/wireguard/conn"
@@ -70,8 +71,7 @@ func StartWireguard() {
 	log.Println("UAPI listener started")
 
 	// wait for program to terminate
-	signal.Notify(term, os.Interrupt)
-	signal.Notify(term, os.Kill)
+	signal.Notify(term, os.Interrupt, syscall.SIGTERM)
 
 	select {
 	case <-term:
