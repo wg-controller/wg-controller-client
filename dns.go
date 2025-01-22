@@ -68,7 +68,7 @@ func PopulateLinuxHostsFile() error {
 	PeersMU.Unlock()
 
 	// Append server host
-	newEntry := ServerInfo.ServerInternalName + " " + ServerInfo.ServerInternalIP + " # wg-controller"
+	newEntry := ServerInfo.ServerInternalIP + " " + ServerInfo.ServerInternalName + " # wg-controller"
 	lines = append(lines, newEntry)
 
 	// Rewrite the file
