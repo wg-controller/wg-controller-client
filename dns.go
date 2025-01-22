@@ -56,10 +56,20 @@ func PopulateLinuxHostsFile() error {
 	// Append known hosts
 	PeersMU.Lock()
 	for _, peer := range Peers {
+		// Skip self
+		if peer.Hostname == Hostname {
+			continue
+		}
+
+		// Append entry
 		newEntry := peer.RemoteTunAddress + " " + peer.Hostname + " # wg-controller"
 		lines = append(lines, newEntry)
 	}
 	PeersMU.Unlock()
+
+	// Append server host
+	newEntry := ServerInfo.ServerInternalName + " " + ServerInfo.ServerInternalIP + " # wg-controller"
+	lines = append(lines, newEntry)
 
 	// Rewrite the file
 	if err := file.Truncate(0); err != nil {
