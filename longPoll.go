@@ -15,6 +15,7 @@ type LP_Message struct {
 	Data       string            `json:"data"`
 	Attributes map[string]string `json:"attributes"`
 	Config     types.Peer        `json:"config,omitempty"`
+	Peers      []types.Peer      `json:"peers,omitempty"`
 }
 
 const pollTimeout = 15 * time.Second
@@ -100,6 +101,14 @@ func handleIncomingPollMsg(message LP_Message) {
 		PeerConfig = message.Config
 		PeerConfigMU.Unlock()
 		ApplyWireguardConfig()
+	case "peers":
+		log.Println("Received LP peers message")
+		// Apply hosts
+		PeersMU.Lock()
+		Peers = message.Peers
+		PeersMU.Unlock()
+		CleanupHostsFile()
+		PopulateHostsFile()
 	default:
 		log.Println("Unknown LP message type:", message.Topic)
 	}

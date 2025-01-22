@@ -35,6 +35,8 @@ var PeerConfig types.Peer
 var PeerConfigMU sync.Mutex
 var ServerInfo types.ServerInfo
 var ServerInfoMU sync.Mutex
+var Peers []types.Peer
+var PeersMU sync.Mutex
 var State StateStruct
 
 func main() {
@@ -66,6 +68,10 @@ func main() {
 	GetServerInfo()
 
 	GetConfig()
+
+	GetPeers()
+
+	PopulateHostsFile()
 
 	go InitLongPoll()
 

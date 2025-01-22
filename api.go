@@ -221,3 +221,43 @@ func GetServerInfo() {
 	ServerInfo = server
 	ServerInfoMU.Unlock()
 }
+
+func GetPeers() {
+	path := "https://" + State.Flags.Server_host + ":" + State.Flags.Server_port + "/api/v1/peers"
+	req, err := http.NewRequest("GET", path, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Set headers
+	req.Header.Set("Authorization", State.Flags.Api_key)
+
+	// Send request
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Check response code
+	if resp.StatusCode != 200 {
+		log.Fatal("Failed to get hosts")
+	}
+
+	// Get response body
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Parse response body
+	peers := []types.Peer{}
+	err = json.Unmarshal(body, &peers)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Update peers
+	PeersMU.Lock()
+	Peers = peers
+	PeersMU.Unlock()
+}
