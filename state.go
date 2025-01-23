@@ -29,7 +29,7 @@ func LoadState() error {
 }
 
 func SaveState() {
-	// Create wireguard directory if not exist
+	// Create wg-controller directory if not exist
 	if _, err := os.Stat(stateDirPath()); os.IsNotExist(err) {
 		err := os.MkdirAll(stateDirPath(), 0755)
 		if err != nil {
@@ -54,26 +54,26 @@ func SaveState() {
 func stateDirPath() string {
 	switch runtime.GOOS {
 	case "linux":
-		return "/var/run/wireguard"
+		return "/etc/wg-controller"
 	case "darwin":
-		return "/var/run/wireguard"
+		return "/etc/wg-controller"
 	case "windows":
 		return `\\.\pipe\wireguard`
 	default:
-		return "/var/run/wireguard"
+		return "/etc/wg-controller"
 	}
 }
 
 func stateFilePath() string {
 	switch runtime.GOOS {
 	case "linux":
-		return "/var/run/wireguard/wg-state.json"
+		return "/etc/wg-controller/wg-state.json"
 	case "darwin":
-		return "/var/run/wireguard/wg-state.json"
+		return "/etc/wg-controller/wg-state.json"
 	case "windows":
 		return `\\.\pipe\wireguard\wg-state.json`
 	default:
-		return "/var/run/wireguard/wg-state.json"
+		return "/etc/wg-controller/wg-state.json"
 	}
 }
 
