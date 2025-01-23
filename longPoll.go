@@ -22,6 +22,8 @@ const pollTimeout = 15 * time.Second
 const pollPause = 2 * time.Second
 const pollErrorPause = 10 * time.Second
 
+var WasDown bool
+
 func InitLongPoll() {
 	log.Println("Initiating long poll...")
 	poll()
@@ -48,6 +50,7 @@ func poll() {
 	// Send request
 	resp, err := client.Do(req)
 	if err != nil {
+		lpDown()
 		log.Println(err)
 		time.Sleep(pollErrorPause)
 		poll()
@@ -75,20 +78,43 @@ func poll() {
 			return
 		}
 
+		lpUp()
 		handleIncomingPollMsg(message)
 		time.Sleep(pollPause)
 		poll()
 		return
 	} else if resp.StatusCode == 204 {
 		// No new messages
+		lpUp()
 		time.Sleep(pollPause)
 		poll()
 		return
 	} else {
+		lpDown()
 		log.Println("Unexpected poll resp code:", resp.StatusCode)
 		time.Sleep(pollErrorPause)
 		poll()
 		return
+	}
+}
+
+func lpDown() {
+	if !WasDown {
+		log.Println("Server connection lost")
+		WasDown = true
+	}
+}
+
+func lpUp() {
+	if WasDown {
+		log.Println("Server connection restored")
+		WasDown = false
+
+		InitPeerServer()
+		GetServerInfo()
+		GetConfig()
+		GetPeers()
+		PopulateHostsFile()
 	}
 }
 
