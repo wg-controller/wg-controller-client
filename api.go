@@ -50,10 +50,12 @@ func InitPeerServer() {
 	}
 
 	log.Println("Peer found on server")
+
 }
 
 func GetInitPeer() types.PeerInit {
 	// Get init values
+	log.Println("Getting peer init values from server...")
 	path := "https://" + State.Flags.Server_host + ":" + State.Flags.Server_port + "/api/v1/peers/init"
 	req, err := http.NewRequest("GET", path, nil)
 	if err != nil {
@@ -107,7 +109,9 @@ func CreatePeer() {
 		KeepAliveSeconds: 15,
 		RemoteTunAddress: peerInit.RemoteTunAddress,
 		AllowedSubnets:   []string{peerInit.ServerCIDR},
-		Attributes:       []string{"wg-controller-client"},
+		OS:               GetSystemString(),
+		ClientType:       "wg-controller-client",
+		ClientVersion:    IMAGE_TAG,
 	}
 
 	// Create peer
@@ -141,6 +145,7 @@ func CreatePeer() {
 }
 
 func GetConfig() {
+	log.Println("Getting peer config from server...")
 	path := "https://" + State.Flags.Server_host + ":" + State.Flags.Server_port + "/api/v1/peers/" + State.UUID
 	req, err := http.NewRequest("GET", path, nil)
 	if err != nil {
@@ -182,7 +187,40 @@ func GetConfig() {
 	ApplyWireguardConfig()
 }
 
+func PatchConfig() {
+	log.Println("Patching peer config on server...")
+	PeerConfigMU.Lock()
+	defer PeerConfigMU.Unlock()
+
+	// Update peer config
+	PeerConfig.OS = GetSystemString()
+	PeerConfig.ClientVersion = IMAGE_TAG
+	PeerConfig.ClientType = "wg-controller-client"
+
+	// Patch peer
+	path := "https://" + State.Flags.Server_host + ":" + State.Flags.Server_port + "/api/v1/peers/" + State.UUID
+	req, err := http.NewRequest("PATCH", path, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Set headers
+	req.Header.Set("Authorization", State.Flags.Api_key)
+
+	// Send request
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Check response code
+	if resp.StatusCode != 200 {
+		log.Println("Failed to patch peer:", resp.StatusCode)
+	}
+}
+
 func GetServerInfo() {
+	log.Println("Getting server info from server...")
 	path := "https://" + State.Flags.Server_host + ":" + State.Flags.Server_port + "/api/v1/serverinfo"
 	req, err := http.NewRequest("GET", path, nil)
 	if err != nil {
@@ -223,6 +261,7 @@ func GetServerInfo() {
 }
 
 func GetPeers() {
+	log.Println("Getting peers from server...")
 	path := "https://" + State.Flags.Server_host + ":" + State.Flags.Server_port + "/api/v1/peers"
 	req, err := http.NewRequest("GET", path, nil)
 	if err != nil {

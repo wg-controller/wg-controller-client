@@ -113,6 +113,7 @@ func lpUp() {
 		InitPeerServer()
 		GetServerInfo()
 		GetConfig()
+		PatchConfig()
 		GetPeers()
 		PopulateHostsFile()
 	}

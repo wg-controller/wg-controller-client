@@ -69,6 +69,8 @@ func main() {
 
 	GetConfig()
 
+	PatchConfig()
+
 	GetPeers()
 
 	PopulateHostsFile()
