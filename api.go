@@ -207,6 +207,15 @@ func PatchConfig() {
 	// Set headers
 	req.Header.Set("Authorization", State.Flags.Api_key)
 
+	// Marshal peer
+	jsonBody, err := json.Marshal(PeerConfig)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Set body
+	req.Body = io.NopCloser(bytes.NewReader(jsonBody))
+
 	// Send request
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
