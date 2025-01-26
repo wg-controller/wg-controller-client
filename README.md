@@ -9,7 +9,7 @@ Client side service for [WireGuard Controller](https://github.com/wg-controller/
 - Synchronization of WireGuard keys and parameters with WireGuard controller
 - Simplicity and performance benefits of [wireguard-go](https://github.com/WireGuard/wireguard-go)
 - Single binary with minimal dependencies
-- Lightweight (approx 9MB binary)
+- Lightweight (approx 9MB)
 
 ## Installation
 
