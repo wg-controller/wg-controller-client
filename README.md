@@ -49,3 +49,10 @@ sudo systemctl start wg-controller
 | --api-key      | required | kZdMQsztB-vR6Wve2dYYUOf6LXl5n2cgeESN8i7MQkU= | api key created on wg-controller |
 | --install      | false    |                                              | installs system service files    |
 | --uninstall    | false    |                                              | cleans up system service files   |
+
+
+## OS Support
+- [x] Debian
+- [x] Ubuntu
+- [ ] Windows
+- [ ] MacOS
