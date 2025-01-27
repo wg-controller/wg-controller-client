@@ -64,6 +64,6 @@ sudo systemctl start wg-controller
 | Fedora       |         |
 | Alpine       |         |
 
-✅ = Tested
-ℹ️ = Untested
-⛔️ = Not Supported Yet
+✅ Tested <br />
+ℹ️ Untested <br />
+⛔️ Not Supported Yet <br />
