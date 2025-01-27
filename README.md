@@ -16,7 +16,7 @@ Client side service for [WireGuard Controller](https://github.com/wg-controller/
 Download appropriate binary for your system
 
 ```
-curl -o wg-controller https://github.com/wg-controller/wg-controller-client/releases/download/latest/wg-controller-linux
+curl -L -o wg-controller https://github.com/wg-controller/wg-controller-client/releases/download/latest/wg-controller-linux
 ```
 
 Make binary executable
@@ -52,7 +52,14 @@ sudo systemctl start wg-controller
 
 ## OS Support
 
-- [x] Debian
-- [x] Ubuntu
-- [ ] Windows
-- [ ] MacOS
+| OS           | Tested | Not Implemented |
+| ------------ | ------ | --------------- |
+| Windows      |        | ⛔️             |
+| MacOS        |        | ⛔️             |
+| Debian       | ✅     |                 |
+| Ubuntu       |        |                 |
+| Arch Linux   | ✅     |                 |
+| Alpine Linux |        |                 |
+| CentOS       |        |                 |
+| Fedora       |        |                 |
+| Alpine       |        |                 |
