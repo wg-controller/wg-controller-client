@@ -16,7 +16,7 @@ Client side service for [WireGuard Controller](https://github.com/wg-controller/
 Download appropriate binary for your system
 
 ```
-wget https://github.com/wg-controller/wg-controller-client/releases/download/latest/wg-controller-linux -O wg-controller
+curl -o wg-controller https://github.com/wg-controller/wg-controller-client/releases/download/latest/wg-controller-linux
 ```
 
 Make binary executable
@@ -50,8 +50,8 @@ sudo systemctl start wg-controller
 | --install      | false    |                                              | installs system service files    |
 | --uninstall    | false    |                                              | cleans up system service files   |
 
-
 ## OS Support
+
 - [x] Debian
 - [x] Ubuntu
 - [ ] Windows
