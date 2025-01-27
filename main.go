@@ -40,6 +40,7 @@ var PeersMU sync.Mutex
 var State StateStruct
 
 func main() {
+	log.Println("WG Controller Client", IMAGE_TAG)
 	err := LoadState()
 	if err != nil {
 		log.Println("Failed to load state, creating new uuid")
