@@ -52,17 +52,16 @@ sudo systemctl start wg-controller
 
 ## OS Support
 
-| OS           | Support |
-| ------------ | ------- |
-| Windows      | ⛔️     |
-| MacOS        | ⛔️     |
-| Debian       | ✅      |
-| Ubuntu       | ℹ️      |
-| Arch Linux   | ✅      |
-| Alpine Linux | ℹ️      |
-| CentOS       | ℹ️      |
-| Fedora       | ℹ️      |
-| Alpine       | ℹ️      |
+| OS         | Support |
+| ---------- | ------- |
+| Windows    | ⛔️     |
+| MacOS      | ⛔️     |
+| Debian     | ✅      |
+| Ubuntu     | ✅      |
+| Arch Linux | ✅      |
+| CentOS     | ℹ️      |
+| Fedora     | ℹ️      |
+| Alpine     | ℹ️      |
 
 ✅ Tested <br />
 ℹ️ Untested <br />
